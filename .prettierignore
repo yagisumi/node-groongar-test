@@ -2,3 +2,7 @@
 /lib
 /umd
 tsconfig.json
+/test/lib
+/tools/lib
+/tools/groonga
+/test/grntest
