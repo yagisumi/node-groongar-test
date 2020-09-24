@@ -1,15 +1,14 @@
-import { merge, kindof } from '../src/merge'
-import { expect } from 'chai'
+import { merge, kindof } from '@/merge'
 
 describe('merge', () => {
   it('kindof', () => {
-    expect(kindof(undefined)).to.equal('undefined')
-    expect(kindof('test')).to.equal('string')
-    expect(kindof(100)).to.equal('number')
-    expect(kindof(true)).to.equal('boolean')
-    expect(kindof({})).to.equal('object')
-    expect(kindof(null)).to.equal('null')
-    expect(kindof([])).to.equal('array')
+    expect(kindof(undefined)).toBe('undefined')
+    expect(kindof('test')).toBe('string')
+    expect(kindof(100)).toBe('number')
+    expect(kindof(true)).toBe('boolean')
+    expect(kindof({})).toBe('object')
+    expect(kindof(null)).toBe('null')
+    expect(kindof([])).toBe('array')
   })
 
   it('merge', () => {
@@ -36,19 +35,19 @@ describe('merge', () => {
       i: 3,
     }
     const merged = merge(x, y)
-    expect(merged.a).to.deep.equal(x.a)
-    expect(merged.b.c).to.be.false
-    expect(merged.b.d).to.equal('y')
-    expect(merged.e).to.deep.equal([1, 2, 3, 4])
-    expect(merged.f).to.be.null
-    expect(merged.g).to.be.undefined
-    expect(merged.h).to.deep.equal({})
-    expect(merged.i).to.equal(3)
+    expect(merged.a).toBe(x.a)
+    expect(merged.b.c).toBe(false)
+    expect(merged.b.d).toBe('y')
+    expect(merged.e).toEqual([1, 2, 3, 4])
+    expect(merged.f).toBeNull()
+    expect(merged.g).toBeUndefined()
+    expect(merged.h).toEqual({})
+    expect(merged.i).toBe(3)
 
     const obj: any = {}
     merge(obj, { a: [1], b: 1 })
-    expect(obj).to.deep.equal({ a: [1], b: 1 })
+    expect(obj).toEqual({ a: [1], b: 1 })
     merge(obj, { a: [2], b: 2 })
-    expect(obj).to.deep.equal({ a: [1, 2], b: 3 })
+    expect(obj).toEqual({ a: [1, 2], b: 3 })
   })
 })

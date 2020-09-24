@@ -1,0 +1,6 @@
+{
+  "require": ["mocha-ui-jest", "ts-node/register", "tsconfig-paths/register"],
+  "spec": ["tools/test/**/*.test.ts"],
+  "ui": "jest",
+  "reporter": "list"
+}

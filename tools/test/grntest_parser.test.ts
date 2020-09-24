@@ -1,6 +1,5 @@
-import { GrnTestScanner, parseGrnTest, Command } from '../src/grntest_parser'
+import { GrnTestScanner, parseGrnTest, Command } from '@/grntest_parser'
 import heredoc from 'heredocument'
-import { expect } from 'chai'
 
 describe('grntest_parser', () => {
   describe('GrnTestScanner', () => {
@@ -8,14 +7,14 @@ describe('grntest_parser', () => {
       const text = ['aaaaa', 'bbbbb', 'ccccc'].join('\n')
       const scanner = new GrnTestScanner(text)
 
-      expect(scanner.peek()).to.equal('aaaaa\n')
-      expect(scanner.scan()).to.equal('aaaaa\n')
-      expect(scanner.peek()).to.equal('bbbbb\n')
-      expect(scanner.scan()).to.equal('bbbbb\n')
-      expect(scanner.peek()).to.equal('ccccc')
-      expect(scanner.scan()).to.equal('ccccc')
-      expect(scanner.peek()).to.be.undefined
-      expect(scanner.scan()).to.be.undefined
+      expect(scanner.peek()).toBe('aaaaa\n')
+      expect(scanner.scan()).toBe('aaaaa\n')
+      expect(scanner.peek()).toBe('bbbbb\n')
+      expect(scanner.scan()).toBe('bbbbb\n')
+      expect(scanner.peek()).toBe('ccccc')
+      expect(scanner.scan()).toBe('ccccc')
+      expect(scanner.peek()).toBeUndefined()
+      expect(scanner.scan()).toBeUndefined()
     })
 
     it('readRest()', () => {
@@ -24,34 +23,34 @@ describe('grntest_parser', () => {
 
       {
         const scanner = new GrnTestScanner(text)
-        expect(scanner.readRest()).to.equal(text)
-        expect(scanner.scan()).to.be.undefined
-        expect(scanner.readRest()).to.equal('')
+        expect(scanner.readRest()).toBe(text)
+        expect(scanner.scan()).toBeUndefined()
+        expect(scanner.readRest()).toBe('')
       }
 
       {
         const scanner = new GrnTestScanner(text)
-        expect(scanner.scan()).to.equal('aaaaa\n')
-        expect(scanner.readRest()).to.equal(lines.slice(1).join('\n'))
-        expect(scanner.scan()).to.be.undefined
-        expect(scanner.readRest()).to.equal('')
+        expect(scanner.scan()).toBe('aaaaa\n')
+        expect(scanner.readRest()).toBe(lines.slice(1).join('\n'))
+        expect(scanner.scan()).toBeUndefined()
+        expect(scanner.readRest()).toBe('')
       }
     })
 
     it('scanValues()', () => {
       {
         const scanner = new GrnTestScanner('[]')
-        expect(scanner.scanValues()).to.equal('[]')
+        expect(scanner.scanValues()).toBe('[]')
       }
 
       {
         const scanner = new GrnTestScanner('{}')
-        expect(scanner.scanValues()).to.be.undefined
+        expect(scanner.scanValues()).toBeUndefined()
       }
 
       {
         const scanner = new GrnTestScanner('[\n\n\n]')
-        expect(scanner.scanValues()).to.equal('[\n\n\n]')
+        expect(scanner.scanValues()).toBe('[\n\n\n]')
       }
 
       {
@@ -65,8 +64,8 @@ describe('grntest_parser', () => {
           ]
         `
         const scanner = new GrnTestScanner(text)
-        expect(scanner.scanCommand()).to.equal('load --table SmallNumbers\n')
-        expect(JSON.parse(scanner.scanValues() as string)).to.deep.equal([
+        expect(scanner.scanCommand()).toBe('load --table SmallNumbers\n')
+        expect(JSON.parse(scanner.scanValues() as string)).toEqual([
           ['_key', 'id_uint8'],
           [10, 11],
           [20, 22],
@@ -78,27 +77,27 @@ describe('grntest_parser', () => {
     it('scanCommand()', () => {
       {
         const scanner = new GrnTestScanner('status\n')
-        expect(scanner.scanCommand()).to.equal('status\n')
+        expect(scanner.scanCommand()).toBe('status\n')
       }
 
       {
         const scanner = new GrnTestScanner('/d/status.json\n')
-        expect(scanner.scanCommand()).to.equal('/d/status.json\n')
+        expect(scanner.scanCommand()).toBe('/d/status.json\n')
       }
 
       {
         const scanner = new GrnTestScanner('select \\\n --table Users \\\n  --command_version 3\n')
-        expect(scanner.scanCommand()).to.equal('select \\\n --table Users \\\n  --command_version 3\n')
+        expect(scanner.scanCommand()).toBe('select \\\n --table Users \\\n  --command_version 3\n')
       }
 
       {
         const scanner = new GrnTestScanner('[]\n')
-        expect(scanner.scanCommand()).to.be.undefined
+        expect(scanner.scanCommand()).toBeUndefined()
       }
 
       {
         const scanner = new GrnTestScanner('# comment\n')
-        expect(scanner.scanCommand()).to.be.undefined
+        expect(scanner.scanCommand()).toBeUndefined()
       }
     })
 
@@ -125,16 +124,16 @@ describe('grntest_parser', () => {
 
       const scanner = new GrnTestScanner(text)
       const comments = scanner.scanComments()
-      expect(comments.length).to.equal(7)
-      expect(comments[0].type).to.equal('export')
-      expect(comments[1].type).to.equal('pragma')
-      expect(comments[2].type).to.equal('querylog')
-      expect(comments[3].type).to.equal('note')
-      expect(comments[4].type).to.equal('log')
-      expect(comments[5].type).to.equal('pragma')
-      expect(comments[6].type).to.equal('note')
-      expect(scanner.index).to.equal(16)
-      expect(scanner.scanCommand()).to.equal('table_create Data TABLE_NO_KEY\n')
+      expect(comments.length).toBe(7)
+      expect(comments[0].type).toBe('export')
+      expect(comments[1].type).toBe('pragma')
+      expect(comments[2].type).toBe('querylog')
+      expect(comments[3].type).toBe('note')
+      expect(comments[4].type).toBe('log')
+      expect(comments[5].type).toBe('pragma')
+      expect(comments[6].type).toBe('note')
+      expect(scanner.index).toBe(16)
+      expect(scanner.scanCommand()).toBe('table_create Data TABLE_NO_KEY\n')
     })
 
     it('scanResponse()', () => {
@@ -144,9 +143,9 @@ describe('grntest_parser', () => {
           column_create LargeNumbers id_text COLUMN_SCALAR Text
         `
         const scanner = new GrnTestScanner(text)
-        expect(scanner.scanResponse()).to.equal('[[0,0.0,0.0],true]\n')
-        expect(scanner.scanResponse()).to.be.undefined
-        expect(scanner.scanCommand()).to.equal('column_create LargeNumbers id_text COLUMN_SCALAR Text\n')
+        expect(scanner.scanResponse()).toBe('[[0,0.0,0.0],true]\n')
+        expect(scanner.scanResponse()).toBeUndefined()
+        expect(scanner.scanCommand()).toBe('column_create LargeNumbers id_text COLUMN_SCALAR Text\n')
       }
     })
   })
@@ -167,20 +166,18 @@ describe('grntest_parser', () => {
         [[0,0.0,0.0],[[[1],[["_id","UInt32"],["numbers","Int32"]],[1,[1,-2]]]]]
       `
       const scanner = new GrnTestScanner(text)
-      expect(scanner.scanCommand()).to.equal('dump   --dump_plugins no   --dump_schema no\n')
+      expect(scanner.scanCommand()).toBe('dump   --dump_plugins no   --dump_schema no\n')
       const res = scanner.scanDumpResponse()
-      expect(res?.endsWith('numbers\n')).to.be.true
-      expect(scanner.scanCommand()).to.equal("select Data --filter 'numbers @ -2'\n")
-      expect(scanner.scanResponse()).to.equal(
-        '[[0,0.0,0.0],[[[1],[["_id","UInt32"],["numbers","Int32"]],[1,[1,-2]]]]]\n'
-      )
+      expect(res?.endsWith('numbers\n')).toBe(true)
+      expect(scanner.scanCommand()).toBe("select Data --filter 'numbers @ -2'\n")
+      expect(scanner.scanResponse()).toBe('[[0,0.0,0.0],[[[1],[["_id","UInt32"],["numbers","Int32"]],[1,[1,-2]]]]]\n')
     }
 
     {
       const text = 'dump   --dump_plugins no   --dump_schema no\n'
       const scanner = new GrnTestScanner(text)
-      expect(scanner.scanCommand()).to.equal(text)
-      expect(scanner.scanDumpResponse()).to.equal('')
+      expect(scanner.scanCommand()).toBe(text)
+      expect(scanner.scanDumpResponse()).toBe('')
     }
   })
 
@@ -193,14 +190,14 @@ describe('grntest_parser', () => {
       `
     const scanner = new GrnTestScanner(text)
     scanner.skipEmptyLines()
-    expect(scanner.index).to.equal(0)
-    expect(scanner.scanCommand()).to.equal('table_create Users TABLE_HASH_KEY ShortText\n')
-    expect(scanner.index).to.equal(1)
+    expect(scanner.index).toBe(0)
+    expect(scanner.scanCommand()).toBe('table_create Users TABLE_HASH_KEY ShortText\n')
+    expect(scanner.index).toBe(1)
     scanner.skipEmptyLines()
-    expect(scanner.index).to.equal(3)
+    expect(scanner.index).toBe(3)
     scanner.skipEmptyLines()
-    expect(scanner.index).to.equal(3)
-    expect(scanner.scanCommand()).to.equal('column_create Users name COLUMN_SCALAR ShortText\n')
+    expect(scanner.index).toBe(3)
+    expect(scanner.scanCommand()).toBe('column_create Users name COLUMN_SCALAR ShortText\n')
   })
 
   it('output_type=appache-allow', () => {
@@ -259,14 +256,14 @@ describe('grntest_parser', () => {
     `
 
     const scanner = new GrnTestScanner(text)
-    expect(scanner.scanCommand()).to.equal(
+    expect(scanner.scanCommand()).toBe(
       'logical_range_filter Logs time   --command_version 3   --output_type apache-arrow\n'
     )
     const res = scanner.scanDumpResponse()
-    expect(res?.endsWith('0.000000\n')).to.be.true
+    expect(res?.endsWith('0.000000\n')).toBe(true)
     const comments = scanner.scanComments()
-    expect(comments.length).to.equal(1)
-    expect(scanner.scanCommand()).to.equal(
+    expect(comments.length).toBe(1)
+    expect(scanner.scanCommand()).toBe(
       'logical_range_filter Logs time   --command_version 3   --output_type apache-arrow\n'
     )
   })
@@ -302,15 +299,15 @@ describe('grntest_parser', () => {
         ]
       `
       const elems = parseGrnTest(grntest, true)
-      expect(elems.length).to.equal(4)
-      expect(elems[0].type).to.equal('command')
-      expect((elems[0] as Command).count).to.equal(1)
-      expect(elems[1].type).to.equal('command')
-      expect((elems[1] as Command).count).to.equal(2)
-      expect(elems[2].type).to.equal('command')
-      expect((elems[2] as Command).count).to.equal(3)
-      expect(elems[3].type).to.equal('command')
-      expect((elems[3] as Command).count).to.equal(4)
+      expect(elems.length).toBe(4)
+      expect(elems[0].type).toBe('command')
+      expect((elems[0] as Command).count).toBe(1)
+      expect(elems[1].type).toBe('command')
+      expect((elems[1] as Command).count).toBe(2)
+      expect(elems[2].type).toBe('command')
+      expect((elems[2] as Command).count).toBe(3)
+      expect(elems[3].type).toBe('command')
+      expect((elems[3] as Command).count).toBe(4)
     })
 
     it('test (first line comment)', () => {
@@ -322,13 +319,13 @@ describe('grntest_parser', () => {
         dump
       `
       const elems = parseGrnTest(grntest, false)
-      expect(elems.length).to.equal(4)
-      expect(elems[0].type).to.equal('pragma')
-      expect(elems[1].type).to.equal('command')
-      expect((elems[1] as Command).count).to.equal(1)
-      expect(elems[2].type).to.equal('pragma')
-      expect(elems[3].type).to.equal('command')
-      expect((elems[3] as Command).count).to.equal(2)
+      expect(elems.length).toBe(4)
+      expect(elems[0].type).toBe('pragma')
+      expect(elems[1].type).toBe('command')
+      expect((elems[1] as Command).count).toBe(1)
+      expect(elems[2].type).toBe('pragma')
+      expect(elems[3].type).toBe('command')
+      expect((elems[3] as Command).count).toBe(2)
     })
   })
 })

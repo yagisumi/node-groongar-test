@@ -1,23 +1,20 @@
-import { getErrorMessage, getResponse, CommandConverter } from '../src/command_converter'
-import { Response } from '../src/grntest_parser'
+import { getErrorMessage, getResponse, CommandConverter } from '@/command_converter'
+import { Response } from '@/grntest_parser'
 import { parseCommand } from '@yagisumi/groonga-command'
-import { Command } from '../src/grntest_parser'
-import { expect } from 'chai'
-import { testing } from '../src/testing'
-const t = testing.mocha
+import { Command } from '@/grntest_parser'
 
 describe('command_converter', () => {
   describe('getErrorMessage/getResponse', () => {
     it('response1', () => {
       const res1: Response = [[[-22, 0, 0], '[column][create] nonexistent source: <nonexistent>'], false]
       const msg1 = getErrorMessage(res1)
-      expect(typeof msg1).to.equal('string')
-      expect(msg1).to.deep.equal(res1[0][1])
+      expect(typeof msg1).toBe('string')
+      expect(msg1).toBe(res1[0][1])
 
       const res2: Response = [[0, 0, 0], true]
       const msg2 = getErrorMessage(res2)
-      expect(msg2).to.be.undefined
-      expect(getResponse(res1)).to.deep.equal(false)
+      expect(msg2).toBeUndefined()
+      expect(getResponse(res1)).toEqual(false)
     })
 
     it('response3', () => {
@@ -39,9 +36,9 @@ describe('command_converter', () => {
         },
       }
       const msg1 = getErrorMessage(res1)
-      expect(typeof msg1).to.equal('string')
-      expect(msg1).to.equal(res1.header.error?.message)
-      expect(getResponse(res1)).to.deep.equal({
+      expect(typeof msg1).toBe('string')
+      expect(msg1).toBe(res1.header.error?.message)
+      expect(getResponse(res1)).toEqual({
         n_loaded_records: 2,
         loaded_ids: [1, 0, 2],
       })
@@ -51,8 +48,8 @@ describe('command_converter', () => {
         body: { n_loaded_records: 2 },
       }
       const msg2 = getErrorMessage(res2)
-      expect(msg2).to.be.undefined
-      expect(getResponse(res2)).to.deep.equal({ n_loaded_records: 2 })
+      expect(msg2).toBeUndefined()
+      expect(getResponse(res2)).toEqual({ n_loaded_records: 2 })
     })
   })
 
@@ -94,7 +91,7 @@ describe('command_converter', () => {
           table: 'Items',
         }
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
-        expect(args1).to.deep.equal(expected)
+        expect(args1).toEqual(expected)
       }
     })
 
@@ -141,7 +138,7 @@ describe('command_converter', () => {
           table: 'Logs',
         }
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
-        expect(args1).to.deep.equal(expected)
+        expect(args1).toEqual(expected)
       }
     })
 
@@ -182,7 +179,7 @@ describe('command_converter', () => {
           table: 'Items',
         }
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
-        expect(args1).to.deep.equal(expected)
+        expect(args1).toEqual(expected)
       }
     })
 
@@ -209,7 +206,7 @@ describe('command_converter', () => {
           ],
         }
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
-        expect(args1).to.deep.equal(expected)
+        expect(args1).toEqual(expected)
       }
     })
 
@@ -238,7 +235,7 @@ describe('command_converter', () => {
           ],
         }
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
-        expect(args1).to.deep.equal(expected)
+        expect(args1).toEqual(expected)
       }
     })
 
@@ -256,7 +253,7 @@ describe('command_converter', () => {
         const converter = new CommandConverter(cmd, 'test')
         const expected = { offset: -1, limit: 1, test: -1.23, table: 'Entries' }
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
-        expect(args1).to.deep.equal(expected)
+        expect(args1).toEqual(expected)
       }
     })
 
@@ -274,7 +271,7 @@ describe('command_converter', () => {
         const converter = new CommandConverter(cmd, 'test')
         converter.report = {}
         converter['parseArguments']({}, command.arguments, command.command_name)
-        expect(converter.report).to.deep.equal({ fixed_keys: { test: { normalize: 1, default_normalizer: 1 } } })
+        expect(converter.report).toEqual({ fixed_keys: { test: { normalize: 1, default_normalizer: 1 } } })
       }
     })
 
@@ -296,7 +293,7 @@ describe('command_converter', () => {
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
         const lines = converter['argsToLines'](cmd, args1)
         const expected = ['{', '  table: "Bookmarks",', '  values: values1,', '}']
-        expect(lines).to.deep.equal(expected)
+        expect(lines).toEqual(expected)
       }
     })
 
@@ -323,7 +320,7 @@ describe('command_converter', () => {
         ]
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
         const lines = converter['argsToLines'](cmd, args1)
-        expect(lines).to.deep.equal(expected)
+        expect(lines).toEqual(expected)
       }
     })
 
@@ -367,7 +364,7 @@ describe('command_converter', () => {
         ]
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
         const lines = converter['argsToLines'](cmd, args1)
-        expect(lines).to.deep.equal(expected)
+        expect(lines).toEqual(expected)
       }
     })
 
@@ -393,13 +390,13 @@ describe('command_converter', () => {
         ]
         const args1 = converter['parseArguments']({}, command.arguments, command.command_name)
         const lines = converter['argsToLines'](cmd, args1)
-        expect(lines).to.deep.equal(expected)
+        expect(lines).toEqual(expected)
       }
     })
 
     it('valLines', () => {
       const command = parseCommand('dump')
-      expect(command).not.to.be.undefined
+      expect(command).not.toBeUndefined()
       if (command) {
         const cmd: Command = {
           type: 'command',
@@ -413,14 +410,14 @@ describe('command_converter', () => {
           const value = -3
           const lines = converter['valLines'](value, 1)
           const expected = ['-3']
-          expect(lines).to.deep.equal(expected)
+          expect(lines).toEqual(expected)
         }
 
         {
           const value = 'test'
           const lines = converter['valLines'](value, 1)
           const expected = ['"test"']
-          expect(lines).to.deep.equal(expected)
+          expect(lines).toEqual(expected)
         }
 
         {
@@ -436,7 +433,7 @@ describe('command_converter', () => {
             '    },',
             '  ]',
           ]
-          expect(lines).to.deep.equal(expected)
+          expect(lines).toEqual(expected)
         }
 
         {
@@ -448,7 +445,7 @@ describe('command_converter', () => {
             '    b: 4,',
             '  }',
           ]
-          expect(lines).to.deep.equal(expected)
+          expect(lines).toEqual(expected)
         }
       }
     })
@@ -485,18 +482,18 @@ describe('command_converter', () => {
           '  table: "Bookmarks",',
           '  values: values1,',
           '})',
-          `expect(r1.ok).${t.toBeTrue}`,
-          `expect(r1.error).${t.toBeUndefined}`,
+          'expect(r1.ok).toBe(true)',
+          'expect(r1.error).toBeUndefined()',
           'if (r1.ok) {',
           '  const expected1 = [',
           '    2,',
           '  ]',
-          `  expect([r1.value]).${t.toEqual}(expected1)`,
+          '  expect([r1.value]).toEqual(expected1)',
           '}',
         ]
         const lines = converter['testLines']()
         // console.log(lines)
-        expect(lines).to.deep.equal(expected)
+        expect(lines).toEqual(expected)
       }
     })
 
@@ -526,14 +523,14 @@ describe('command_converter', () => {
           '  filter: "_key @ uri",',
           '  table: "Sites",',
           '} as any)',
-          `expect(r1.ok).${t.toBeFalse}`,
-          `expect(r1.error).${t.toBeInstanceOf}(Error)`,
+          'expect(r1.ok).toBe(false)',
+          'expect(r1.error).toBeInstanceOf(Error)',
           'if (r1.error) {',
           `  const errMsg = "invalid expression: can't use column as a value: <Sites.uri>: <#<expr\\n  vars:{\\n    $1:#<record:hash:Sites id:(no value)>\\n  },\\n "`,
-          `  expect(r1.error.message.trim()).${t.toEqual}(errMsg.trim())`,
+          '  expect(r1.error.message.trim()).toBe(errMsg.trim())',
           '}',
         ]
-        expect(lines).to.deep.equal(expected)
+        expect(lines).toEqual(expected)
       }
     })
   })

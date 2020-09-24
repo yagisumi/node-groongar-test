@@ -6,13 +6,19 @@ import { parseGrnTest, GrnTestElem, Command, Export, Pragma, Comment } from './g
 import { CommandConverter } from './command_converter'
 import fs from 'fs'
 import mkdirp from 'mkdirp'
-import { testing } from './testing'
-const t = testing.mocha
+import util from 'util'
 
 type TestFileInfo = {
   base: string
   test: readdirp.EntryInfo
   expected: readdirp.EntryInfo
+}
+
+type Advices = {
+  command: Record<string, boolean>
+  pragma: Record<string, boolean>
+  env?: Record<string, string>
+  omit?: boolean
 }
 
 export async function convertGrnTest(env: Env) {
@@ -106,6 +112,10 @@ class GrnTestConverter {
   isolatedReasons: Record<string, number> = {}
   copypathMap: Record<string, boolean> = {}
   private static includeMap: Record<string, GrnTestElem[]> = {}
+  private advices: Advices = {
+    command: {},
+    pragma: {},
+  }
 
   constructor(testPath: string, testFileInfo: TestFileInfo) {
     this.testPath = testPath
@@ -234,6 +244,7 @@ class GrnTestConverter {
       const currentLines = onerror ? tryLines : lines
 
       if (elem.type === 'command') {
+        this.advices.command[elem.command.command_name] = true
         const converter = new CommandConverter(elem, this.testPath)
         currentLines.push(...converter.main())
         merge(this.report, converter.report)
@@ -288,6 +299,8 @@ class GrnTestConverter {
     if (elem.string.match(/^#\$(\w+)=(.+)/)) {
       const key = RegExp.$1
       const val = RegExp.$2.replace(/#\{/g, '${')
+      this.addEnvAdvice(key, val)
+
       return [
         `// ${elem.string}`,
         `setEnv('${key}', \`${val}\`)`, // need escape
@@ -295,6 +308,11 @@ class GrnTestConverter {
     } else {
       throw new Error('unexpected')
     }
+  }
+
+  private addEnvAdvice(key: string, val: string) {
+    this.advices.env ??= {}
+    this.advices.env[key] = val
   }
 
   private getLinesOfPragma(elem: Pragma) {
@@ -391,6 +409,7 @@ class GrnTestConverter {
         [reason]: 1,
       },
     })
+    this.advices.omit = true
   }
 
   private getLinesOfComment(elem: Comment) {
@@ -400,9 +419,9 @@ class GrnTestConverter {
       .map((line) => `// ${line}`)
   }
 
-  shouldOmit() {
-    return Object.keys(this.omitReasons).length !== 0
-  }
+  // shouldOmit() {
+  //   return Object.keys(this.omitReasons).length !== 0
+  // }
 
   shouldIsolate() {
     return Object.keys(this.isolatedReasons).length !== 0
@@ -418,24 +437,65 @@ class GrnTestConverter {
     return lines
   }
 
+  private advicesLines() {
+    const lines: string[] = []
+
+    lines.push('{')
+
+    lines.push(' command: {')
+    Object.keys(this.advices.command).forEach((key) => {
+      const bool = this.advices.command[key] ? 'true' : 'false'
+      lines.push(`    ${key}: ${bool},`)
+    })
+    lines.push('  },')
+
+    lines.push(' pragma: {')
+    Object.keys(this.advices.pragma).forEach((key) => {
+      const bool = this.advices.pragma[key] ? 'true' : 'false'
+      lines.push(`    '${key}': ${bool},`)
+    })
+    lines.push('  },')
+
+    if (this.advices.env) {
+      lines.push(' env: {')
+      Object.keys(this.advices.env).forEach((key) => {
+        if (this.advices.env) {
+          const val = this.advices.env[key]
+          lines.push(`    '${key}': \`${val}\`,`)
+        }
+      })
+      lines.push('  },')
+    }
+
+    if (this.advices.omit) {
+      lines.push('  omit: true,')
+    }
+
+    lines.push('}')
+
+    return lines
+  }
+
   private applyTemplate(lines: string[]) {
     const basename = path.basename(this.testPath)
     return `
       import path from 'path'
       import { createGroongar } from '@yagisumi/groongar'
-      ${t.import}
 
-      const db_directory = path.join(__dirname, 'tmp.${basename}')
-      const db_path = path.join(db_directory, 'tmp.${basename}.db')
-      let env: TestEnv
+      const TEST = (advices: Advices) => (shouldOmit(advices) ? it.skip : it)
 
       describe('grntest', () => {
-        ${t.beforeAll}(() => {
+        const db_directory = path.join(__dirname, \`tmp.${basename}.\${clientInterface}.db\`)
+        const db_path = path.join(db_directory, 'db')
+        let env: TestEnv
+        const advices: Advices = ${this.advicesLines().join('\n')}
+
+        beforeAll(() => {
           rimraf(db_directory)
           mkdir(db_directory)
         })
 
-        ${t.afterAll}(() => {
+        afterAll(() => {
           return new Promise((resolve) => {
             setTimeout(() => {
               rimraf(db_directory)
@@ -457,9 +517,10 @@ class GrnTestConverter {
         })
 
         ${this.omitReasonsLines().join('\n')}
-        it${this.shouldOmit() ? '.skip' : ''}('${this.testPath}', async () => {
+        TEST(advices)('${this.testPath}', async () => {
           env = await setupClient({
             db_path: db_path,
+            env: advices.env,
           })
           const r_grngr = createGroongar(env.client)
           if (r_grngr.error) {

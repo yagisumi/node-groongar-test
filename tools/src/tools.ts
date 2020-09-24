@@ -1,6 +1,5 @@
 import heredoc from 'heredocument'
 import { init_config, Env } from './env'
-import { generateGronngar } from './generate_groongar'
 import { convertGrnTest } from './grntest_converter'
 
 function printUsage() {

@@ -7,9 +7,17 @@ export interface GroongaClient {
 
 export type SetupConfig = {
   db_path: string
+  env?: Record<string, string>
 }
 
 export interface TestEnv {
   client: GroongaClient
   config: SetupConfig
+}
+
+export type Advices = {
+  command: Record<string, boolean>
+  pragma: Record<string, boolean>
+  env?: Record<string, string>
+  omit?: boolean
 }

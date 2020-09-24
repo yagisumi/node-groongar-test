@@ -1,4 +1,4 @@
-import { SetupConfig, TestEnv } from './types'
+import { SetupConfig, TestEnv, Advices } from './types'
 import { Database } from 'nroonga'
 import * as funcs from './funcs'
 
@@ -29,6 +29,20 @@ function teardownClient(env: NroongaTestEnv): Promise<void> {
   })
 }
 
+function shouldOmit(advices: Advices) {
+  if (advices.omit) {
+    return true
+  } else if (advices.command['thread_limit']) {
+    return true
+  } else if (advices.command['lock_acquire']) {
+    return true
+  } else if (advices.command['lock_release']) {
+    return true
+  }
+
+  return false
+}
+
 declare const global: any
 
 for (const f in funcs) {
@@ -37,5 +51,5 @@ for (const f in funcs) {
 
 global.setupClient = setupClient
 global.teardownClient = teardownClient
+global.shouldOmit = shouldOmit
 global.clientInterface = 'nroonga'
-;(process.env as any)['TS_NODE_CACHE'] = false

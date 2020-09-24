@@ -1,7 +1,5 @@
 import { Command, Response } from './grntest_parser'
 import { merge } from './merge'
-import { testing } from './testing'
-const t = testing.mocha
 
 type GroongarArgsVal = string | number | bigint | GroongarArgsVal[] | GroongarArgs
 interface GroongarArgs {
@@ -175,15 +173,15 @@ export class CommandConverter {
   }
 
   private getOmitReason() {
-    const cmdName = this.cmd.command.command_name
+    // const cmdName = this.cmd.command.command_name
 
-    if (cmdName === 'thread_limit') {
-      return 'command_name=thread_limit'
-    } else if (cmdName === 'lock_acquire') {
-      return 'command_name=lock_acquire'
-    } else if (cmdName === 'lock_release') {
-      return 'command_name=lock_release'
-    }
+    // if (cmdName === 'thread_limit') {
+    //   return 'command_name=thread_limit'
+    // } else if (cmdName === 'lock_acquire') {
+    //   return 'command_name=lock_acquire'
+    // } else if (cmdName === 'lock_release') {
+    //   return 'command_name=lock_release'
+    // }
 
     return undefined
   }
@@ -218,17 +216,23 @@ export class CommandConverter {
       }
 
       if (this.errorMassage) {
-        lines.push(`${skip}expect(r${this.countStr}.ok).${t.toBeFalse}`)
-        lines.push(`${skip}expect(r${this.countStr}.error).${t.toBeInstanceOf}(Error)`)
-        lines.push(
-          `if (r${this.countStr}.error) {`,
-          `  const errMsg = ${JSON.stringify(this.errorMassage)}`,
-          `  ${skip}expect(r${this.countStr}.error.message.trim()).${t.toEqual}(errMsg.trim())`,
-          '}'
-        )
+        lines.push(`${skip}expect(r${this.countStr}.ok).toBe(false)`)
+        lines.push(`${skip}expect(r${this.countStr}.error).toBeInstanceOf(Error)`)
+        lines.push(`if (r${this.countStr}.error) {`)
+        lines.push(`  const errMsg = ${JSON.stringify(this.errorMassage)}`)
+        if (this.errorMassage.indexOf('<db/db.') >= 0) {
+          lines.push(
+            `  ${skip}expect(`,
+            `    r${this.countStr}.error.message.trim().replace(/<[^<]*?$/, '')`,
+            `  ).toBe(errMsg.trim().replace(/<db\\/db\\.[\\s\\S]*?$/, ''))`
+          )
+        } else {
+          lines.push(`  ${skip}expect(r${this.countStr}.error.message.trim()).toBe(errMsg.trim())`)
+        }
+        lines.push('}')
       } else {
-        lines.push(`${skip}expect(r${this.countStr}.ok).${t.toBeTrue}`)
-        lines.push(`${skip}expect(r${this.countStr}.error).${t.toBeUndefined}`)
+        lines.push(`${skip}expect(r${this.countStr}.ok).toBe(true)`)
+        lines.push(`${skip}expect(r${this.countStr}.error).toBeUndefined()`)
         const res = getResponse(this.cmd.response)
 
         lines.push(`if (r${this.countStr}.ok) {`)
@@ -239,22 +243,24 @@ export class CommandConverter {
           lines.push('  ]')
           lines.push(
             // trim() in fixDump
-            `  ${skip}expect(r${this.countStr}.value.trim()).${t.toEqual}(expected${this.countStr}.join('\\n').trim())`
+            `  ${skip}expect(r${this.countStr}.value.trim()).toEqual(expected${this.countStr}.join('\\n').trim())`
           )
         } else {
           const rlines = this.valLines([res] as any, 1)
           rlines[0] = `  const expected${this.countStr} = ` + rlines[0]
           lines.push(...rlines)
           if (this.cmd.command.command_name === 'object_inspect') {
-            lines.push(
-              `  ${skip}expect([fixObjectInspect(r${this.countStr}.value)]).${t.toEqual}(expected${this.countStr})`
-            )
+            lines.push(`  ${skip}expect([fixObjectInspect(r${this.countStr}.value)]).toEqual(expected${this.countStr})`)
           } else if (['column_list', 'object_list', 'table_list'].includes(this.cmd.command.command_name)) {
-            lines.push(
-              `  ${skip}expect([fixDBPath(r${this.countStr}.value, db_path)]).${t.toEqual}(expected${this.countStr})`
-            )
+            let actual = `fixDBPath(r${this.countStr}.value, db_path)`
+            let expected = `expected${this.countStr}`
+            if (this.cmd.command.command_name === 'object_list') {
+              actual = `fixObjectList(${actual})`
+              expected = `fixObjectList(${expected})`
+            }
+            lines.push(`  ${skip}expect([${actual}]).toEqual(${expected})`)
           } else {
-            lines.push(`  ${skip}expect([r${this.countStr}.value]).${t.toEqual}(expected${this.countStr})`)
+            lines.push(`  ${skip}expect([r${this.countStr}.value]).toEqual(expected${this.countStr})`)
           }
         }
         lines.push('}')

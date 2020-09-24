@@ -9,29 +9,34 @@ export function deleteEnv(key: string) {
   delete process.env[key]
 }
 
-export function mkdir(path: string) {
-  fs.mkdirSync(path)
+export function mkdir(dir: string) {
+  fs.mkdirSync(dir)
 }
 
-export function exists(path: string) {
-  return fs.existsSync(path)
+export function exists(file: string) {
+  return fs.existsSync(file)
 }
 
 export function copyFile(src: string, dest: string) {
   fs.copyFileSync(src, dest)
 }
 
-export function rimraf(dir_path: string) {
-  if (fs.existsSync(dir_path)) {
-    fs.readdirSync(dir_path).forEach(function (entry) {
-      const entry_path = path.join(dir_path, entry)
-      if (fs.lstatSync(entry_path).isDirectory()) {
-        rimraf(entry_path)
-      } else {
-        fs.unlinkSync(entry_path)
-      }
-    })
-    fs.rmdirSync(dir_path)
+export function rimraf(dir: string) {
+  try {
+    if (fs.existsSync(dir)) {
+      fs.readdirSync(dir).forEach(function (entry) {
+        const entry_path = path.join(dir, entry)
+        if (fs.lstatSync(entry_path).isDirectory()) {
+          rimraf(entry_path)
+        } else {
+          fs.unlinkSync(entry_path)
+        }
+      })
+      fs.rmdirSync(dir)
+    }
+    return true
+  } catch (e) {
+    return false
   }
 }
 
@@ -111,6 +116,32 @@ export function fixObjectInspect(obj: unknown) {
           o['disk_usage'] = 0
         }
       })
+    }
+  }
+
+  return obj
+}
+
+export function fixObjectList(obj: unknown) {
+  if (Array.isArray(obj)) {
+    for (const val of obj) {
+      if (val != null && typeof val === 'object') {
+        fixObjectList(val)
+      }
+    }
+  } else if (typeof obj === 'object') {
+    if (obj != null) {
+      const o = obj as Record<string, unknown>
+      for (const key of Object.keys(o)) {
+        const val = o[key]
+        if (typeof val === 'string') {
+          o[key] = val.replace(/\.dll$/, '.so')
+        } else if (key === 'opened' && typeof val === 'boolean') {
+          o[key] = false
+        } else if (val != null && typeof val === 'object') {
+          fixObjectList(val)
+        }
+      }
     }
   }
 
