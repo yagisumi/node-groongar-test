@@ -12,7 +12,7 @@
     "build": "run-s clean test:build",
     "test:build": "tsc -p test/src",
     "clean": "rimraf lib test/lib tools/lib coverage umd *.tgz .rpt2_cache",
-    "grntest:nroonga": "cross-env TS_NODE_FILES=true mocha --config mocharc.json  -r test/lib/mocha_env_nroonga.js \"test/grntest/suite/**/*.test.ts\"",
+    "grntest:nroonga": "cross-env TS_NODE_FILES=true mocha --config mocharc.json -r test/lib/mocha_env_nroonga.js \"test/grntest/suite/**/*.test.ts\"",
     "grntest:nroonga-i": "node test/lib/i-test.js",
     "grntest:http": "cross-env TS_NODE_FILES=true mocha --config mocharc.json  -r test/lib/mocha_env_http.js \"test/grntest/suite/**/*.{test,i-test}.ts\"",
     "prettier:fix": "prettier --write \"**/*.{ts,js,json}\"",
