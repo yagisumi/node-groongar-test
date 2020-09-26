@@ -115,9 +115,13 @@ export class Env {
   }
 
   clean() {
+    console.log(`CLEAN: ${this.report_dir}`)
     rimraf.sync(this.report_dir)
+    console.log(`CLEAN: ${this.outputs_dir}`)
     rimraf.sync(this.outputs_dir)
+    console.log(`CLEAN: ${this.temp_dir}`)
     rimraf.sync(this.temp_dir)
+    console.log(`CLEAN: ${this.doc_test_dir}`)
     rimraf.sync(this.doc_test_dir)
   }
 
@@ -126,7 +130,9 @@ export class Env {
   // }
 
   clean_grntest() {
+    console.log(`CLEAN: ${this.groongar_grntest_dir}`)
     rimraf.sync(this.groongar_grntest_dir)
+    console.log(`CLEAN: ${this.groongar_typecheck_dir}`)
     rimraf.sync(this.groongar_typecheck_dir)
   }
 
