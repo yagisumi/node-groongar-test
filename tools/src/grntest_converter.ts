@@ -66,6 +66,9 @@ export async function convertGrnTest(env: Env) {
 
   const copypathMap: Record<string, boolean> = {}
   for (const testPath of Object.keys(test_map)) {
+    // if (testPath.indexOf('online/single') < 0) {
+    //   continue
+    // }
     console.log(testPath)
 
     const converter = new GrnTestConverter(testPath, test_map[testPath])
@@ -159,6 +162,7 @@ export class GrnTestConverter {
     this.testElems = this.combineElems(test_elems, expected_elems)
     if (this.testElems === undefined) {
       merge(this.report['combine error'], [path])
+      console.log({ test_elems, expected_elems })
       throw new Error('combine error')
     }
 
@@ -501,11 +505,6 @@ export class GrnTestConverter {
         let env: TestEnv
         const advices: Advices = ${this.advicesLines().join('\n')}
 
-        beforeAll(() => {
-          rimraf(db_directory)
-          mkdir(db_directory)
-        })
-
         afterAll(() => {
           return new Promise((resolve) => {
             setTimeout(() => {
@@ -517,6 +516,8 @@ export class GrnTestConverter {
 
         beforeEach(() => {
           env = undefined as any
+          rimraf(db_directory)
+          mkdir(db_directory)
         })
 
         afterEach(() => {
