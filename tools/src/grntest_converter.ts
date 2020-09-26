@@ -6,7 +6,7 @@ import { parseGrnTest, GrnTestElem, Command, Export, Pragma, Comment } from './g
 import { CommandConverter } from './command_converter'
 import fs from 'fs'
 import mkdirp from 'mkdirp'
-import util from 'util'
+// import util from 'util'
 
 type TestFileInfo = {
   base: string
@@ -21,17 +21,7 @@ type Advices = {
   omit?: boolean
 }
 
-export async function convertGrnTest(env: Env) {
-  const src_dir = env.groonga_src_dir
-  if (src_dir === undefined) {
-    throw new Error('groonga source code directory not found')
-  }
-  const report: Record<string, any> = {
-    groonga_src_dir: src_dir,
-  }
-
-  const test_base = path.join(src_dir, 'test/command')
-  const suite_dir = path.join(src_dir, 'test/command/suite')
+export async function collectTestMap(suite_dir: string, test_base: string, report: Record<string, any>) {
   const entries = await readdirp.promise(suite_dir)
   const test_map: Record<string, TestFileInfo> = {}
 
@@ -48,9 +38,7 @@ export async function convertGrnTest(env: Env) {
     }
   })
 
-  const copypathMap: Record<string, boolean> = {}
   for (const testPath of Object.keys(test_map)) {
-    console.log(testPath)
     test_map[testPath].base = test_base
     const { test, expected } = test_map[testPath]
     if (!test || !expected) {
@@ -58,6 +46,27 @@ export async function convertGrnTest(env: Env) {
       merge(report, { 'not enough files': [testPath] })
       continue
     }
+  }
+
+  return test_map
+}
+
+export async function convertGrnTest(env: Env) {
+  const src_dir = env.groonga_src_dir
+  if (src_dir === undefined) {
+    throw new Error('groonga source code directory not found')
+  }
+  const report: Record<string, any> = {
+    groonga_src_dir: src_dir,
+  }
+
+  const test_base = path.join(src_dir, 'test/command')
+  const suite_dir = path.join(src_dir, 'test/command/suite')
+  const test_map = await collectTestMap(suite_dir, test_base, report)
+
+  const copypathMap: Record<string, boolean> = {}
+  for (const testPath of Object.keys(test_map)) {
+    console.log(testPath)
 
     const converter = new GrnTestConverter(testPath, test_map[testPath])
     try {
@@ -101,7 +110,7 @@ type Context = {
   onerror?: boolean
 }
 
-class GrnTestConverter {
+export class GrnTestConverter {
   readonly testPath: string
   readonly testFileInfo: TestFileInfo
   report: Record<string, any> = {}
@@ -133,7 +142,7 @@ class GrnTestConverter {
     return this.applyTemplate(lines)
   }
 
-  private buildTestElems() {
+  buildTestElems() {
     const { test, expected } = this.testFileInfo
     const elems = parseGrnTest(fs.readFileSync(test.fullPath, { encoding: 'utf8' }), false)
     const test_elems: GrnTestElem[] = []
@@ -152,6 +161,8 @@ class GrnTestConverter {
       merge(this.report['combine error'], [path])
       throw new Error('combine error')
     }
+
+    return this.testElems
   }
 
   private combineElems(test_elems: GrnTestElem[], expected_elems: GrnTestElem[]) {

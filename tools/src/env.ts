@@ -72,6 +72,7 @@ export class Env {
   readonly doc_test_dir = path.join(TOOLS_DIR, 'doc_test')
   readonly temp_dir = path.join(TOOLS_DIR, 'temp')
   readonly tools_test_dir = path.join(TOOLS_DIR, 'test')
+  readonly outputs_dir = path.join(TOOLS_DIR, 'outputs')
 
   config: Config
 
@@ -126,8 +127,20 @@ export class Env {
     rimraf.sync(this.groongar_grntest_dir)
   }
 
+  save_output(pathname: string, output: any) {
+    const fullpath = path.join(this.outputs_dir, pathname)
+    mkdirp.sync(path.dirname(fullpath))
+    fs.writeFileSync(fullpath, JSON.stringify(output, null, 2))
+  }
+
   save_grntest(pathname: string, test: string) {
     const fullpath = path.join(this.groongar_grntest_dir, pathname)
+    mkdirp.sync(path.dirname(fullpath))
+    fs.writeFileSync(fullpath, test)
+  }
+
+  save_typecheck(pathname: string, test: string) {
+    const fullpath = path.join(this.groongar_typecheck_dir, pathname)
     mkdirp.sync(path.dirname(fullpath))
     fs.writeFileSync(fullpath, test)
   }
@@ -138,7 +151,7 @@ export class Env {
     }
 
     const now = moment()
-    const file = `${name}-${now.format('YYYYMMDD-hhmmss')}.txt`
+    const file = `${name}-${now.format('YYYYMMDD-HHmmss')}.txt`
 
     fs.writeFileSync(path.join(this.report_dir, file), util.inspect(sortObject(obj), false, null))
   }

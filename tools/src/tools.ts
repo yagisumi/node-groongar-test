@@ -1,6 +1,8 @@
 import heredoc from 'heredocument'
 import { init_config, Env } from './env'
 import { convertGrnTest } from './grntest_converter'
+import { collectOutputs } from './collect_outputs'
+import { generateTypeCheck } from './typecheck'
 
 function printUsage() {
   console.log(heredoc`
@@ -22,6 +24,7 @@ const COMMANDS = {
   doc_test: false,
   convert: false,
   outputs: false,
+  typecheck: false,
   groongar: false,
   clean: false,
   clean_test: false,
@@ -67,6 +70,10 @@ async function main() {
           env.clean_grntest()
         } else if (cmd === 'convert') {
           await convertGrnTest(env)
+        } else if (cmd === 'outputs') {
+          await collectOutputs(env)
+        } else if (cmd === 'typecheck') {
+          await generateTypeCheck(env)
         }
       }
     }
