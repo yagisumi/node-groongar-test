@@ -14,13 +14,16 @@
     "clean": "rimraf lib test/lib tools/lib coverage umd *.tgz .rpt2_cache",
     "grntest:nroonga": "cross-env TS_NODE_FILES=true mocha --config mocharc.json -r test/lib/mocha_env_nroonga.js \"test/grntest/suite/**/*.test.ts\"",
     "grntest:nroonga-i": "node test/lib/i-test.js",
-    "grntest:http": "cross-env TS_NODE_FILES=true mocha --config mocharc.json  -r test/lib/mocha_env_http.js \"test/grntest/suite/**/*.{test,i-test}.ts\"",
+    "grntest:http": "cross-env TS_NODE_FILES=true mocha --config mocharc.json -r test/lib/mocha_env_http.js \"test/grntest/suite/**/*.{test,i-test}.ts\"",
+    "typecheck": "mocha --config mocharc.json \"test/typecheck/**/*.test.ts\"",
     "prettier:fix": "prettier --write \"**/*.{ts,js,json}\"",
     "eslint": "eslint \"**/*.{js,ts}\"",
     "tools:test": "cross-env TS_NODE_FILES=true TS_NODE_PROJECT=tools/tsconfig.json mocha --config tools/mocharc.json",
     "tools:usage": "ts-node tools/src/tools.ts",
     "tools:init": "ts-node tools/src/tools.ts init",
     "tools:convert": "ts-node tools/src/tools.ts convert",
+    "tools:outputs": "ts-node tools/src/tools.ts outputs",
+    "tools:typecheck": "ts-node tools/src/tools.ts typecheck",
     "tools:clean": "ts-node tools/src/tools.ts clean",
     "tools:clean_test": "ts-node tools/src/tools.ts clean_test",
     "tools:__build": "tsc -p tools/src"
@@ -31,6 +34,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/chai": "^4.2.12",
+    "@types/deep-equal": "^1.0.1",
     "@types/mkdirp": "^1.0.1",
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.11.1",
@@ -44,6 +48,7 @@
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "cross-env": "^7.0.2",
+    "deep-equal": "^2.0.3",
     "eslint": "^7.9.0",
     "expect": "^26.4.2",
     "get-port": "^5.1.1",
@@ -57,8 +62,10 @@
     "prettier": "^2.1.2",
     "rimraf": "^3.0.2",
     "sortobject": "^4.13.0",
+    "ts-hashcode": "^1.0.2",
     "ts-node": "^9.0.0",
     "tsconfig-paths": "^3.9.0",
+    "tsd": "^0.13.1",
     "typescript": "^4.0.3"
   }
 }
