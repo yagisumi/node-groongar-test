@@ -116,6 +116,8 @@ export class Env {
 
   clean() {
     rimraf.sync(this.report_dir)
+    rimraf.sync(this.outputs_dir)
+    rimraf.sync(this.temp_dir)
     rimraf.sync(this.doc_test_dir)
   }
 
@@ -125,6 +127,7 @@ export class Env {
 
   clean_grntest() {
     rimraf.sync(this.groongar_grntest_dir)
+    rimraf.sync(this.groongar_typecheck_dir)
   }
 
   save_output(pathname: string, output: any) {
