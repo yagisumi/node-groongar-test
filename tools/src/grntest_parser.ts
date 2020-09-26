@@ -233,7 +233,7 @@ export class GrnTestScanner {
     let line = this.peek()
 
     while (line) {
-      if (line === '[[0,0.0,0.0],true]\n') {
+      if (line.match(/^\[\[0,0\.0,0\.0\],/)) {
         this.index -= 1
         lines.pop()
         break
