@@ -15,9 +15,19 @@ export interface TestEnv {
   config: SetupConfig
 }
 
+export type PragmaAdvices = {
+  omit?: boolean
+  eval?: boolean
+  require_platform?: '!windows' | 'windows'
+  suggest_create_dataset?: string
+  timeout?: number
+  require_apache_arrow?: boolean
+}
+
 export type Advices = {
+  testPath: string
   command: Record<string, boolean>
-  pragma: Record<string, boolean>
+  pragma: PragmaAdvices
   env?: Record<string, string>
   omit?: boolean
 }

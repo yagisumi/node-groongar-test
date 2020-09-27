@@ -85,6 +85,12 @@ function shouldOmit(advices: Advices) {
     return true
   }
 
+  if (advices.pragma.require_platform === '!windows' && process.platform === 'win32') {
+    return true
+  } else if (advices.pragma.require_platform === 'windows' && process.platform !== 'win32') {
+    return true
+  }
+
   return false
 }
 

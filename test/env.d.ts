@@ -20,9 +20,19 @@ interface TestEnv {
   client: GroongaClient
   config: SetupConfig
 }
+type PragmaAdvices = {
+  omit?: boolean
+  eval?: boolean
+  require_platform?: '!windows' | 'windows'
+  suggest_create_dataset?: string
+  timeout?: number
+  require_apache_arrow?: boolean
+}
+
 type Advices = {
+  testPath: string
   command: Record<string, boolean>
-  pragma: Record<string, boolean>
+  pragma: PragmaAdvices
   env?: Record<string, string>
   omit?: boolean
 }

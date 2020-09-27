@@ -40,6 +40,21 @@ function shouldOmit(advices: Advices) {
     return true
   }
 
+  if (advices.pragma.require_platform === '!windows' && process.platform === 'win32') {
+    return true
+  } else if (advices.pragma.require_platform === 'windows' && process.platform !== 'win32') {
+    return true
+  }
+
+  const omitList = [
+    // not implemented, no error
+    'suite/reference_acquire/target_name/invalid',
+  ]
+
+  if (omitList.includes(advices.testPath)) {
+    return true
+  }
+
   return false
 }
 

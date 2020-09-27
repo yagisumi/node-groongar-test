@@ -14,9 +14,19 @@ type TestFileInfo = {
   expected: readdirp.EntryInfo
 }
 
+type PragmaAdvices = {
+  omit?: boolean
+  eval?: boolean
+  require_platform?: '!windows' | 'windows'
+  suggest_create_dataset?: string
+  timeout?: number
+  require_apache_arrow?: boolean
+}
+
 type Advices = {
+  testPath: string
   command: Record<string, boolean>
-  pragma: Record<string, boolean>
+  pragma: PragmaAdvices
   env?: Record<string, string>
   omit?: boolean
 }
@@ -124,15 +134,17 @@ export class GrnTestConverter {
   isolatedReasons: Record<string, number> = {}
   copypathMap: Record<string, boolean> = {}
   private static includeMap: Record<string, GrnTestElem[]> = {}
-  private advices: Advices = {
-    command: {},
-    pragma: {},
-  }
+  private advices: Advices
 
   constructor(testPath: string, testFileInfo: TestFileInfo) {
     this.testPath = testPath
     this.testFileInfo = testFileInfo
 
+    this.advices = {
+      testPath,
+      command: {},
+      pragma: {},
+    }
     const reason = OMIT_TEST_MAP[testPath]
     if (reason) {
       this.omit(reason)
@@ -334,15 +346,20 @@ export class GrnTestConverter {
     const lines = this.getLinesOfComment(elem)
 
     if (elem.string.match(/^#@timeout\s+(\d+)/)) {
-      this.context.timeout = Number(RegExp.$1) * 1000
+      const time = Number(RegExp.$1) * 1000
+      this.context.timeout = time
+      this.advices.pragma.timeout = time
     } else if (elem.string.match(/^#@timeout\s+default/)) {
       // nothing
     } else if (elem.string.startsWith('#@omit')) {
       this.omit('#@omit')
+      this.advices.pragma.omit = true
     } else if (elem.string.startsWith('#@eval')) {
       this.omit('#@eval')
+      this.advices.pragma.eval
     } else if (elem.string.match(/^#@suggest-create-dataset\s+(\w+)/)) {
       const dataset = RegExp.$1
+      this.advices.pragma.suggest_create_dataset = dataset
       lines.push(`await groongar.suggestCreateDataset('${dataset}')`)
     } else if (elem.string.match(/^#@on-error\s+omit/)) {
       this.context.onerror = true
@@ -407,9 +424,12 @@ export class GrnTestConverter {
     } else if (elem.string.match(/^#@require-testee groonga/)) {
       // ignore
     } else if (elem.string.match(/^#@require-apache-arrow/)) {
+      this.advices.pragma.require_apache_arrow = true
       // ignore
     } else if (elem.string.match(/^#@include /)) {
       // !!!
+    } else if (elem.string.match(/^#@require-platform\s+(!?windows)/)) {
+      this.advices.pragma.require_platform = RegExp.$1 as any
     } else {
       throw new Error(`unexpected pragma: ${elem.string}`)
     }
@@ -456,6 +476,7 @@ export class GrnTestConverter {
     const lines: string[] = []
 
     lines.push('{')
+    lines.push(`  testPath: '${this.testPath}',`)
 
     lines.push(' command: {')
     Object.keys(this.advices.command).forEach((key) => {
@@ -466,8 +487,8 @@ export class GrnTestConverter {
 
     lines.push(' pragma: {')
     Object.keys(this.advices.pragma).forEach((key) => {
-      const bool = this.advices.pragma[key] ? 'true' : 'false'
-      lines.push(`    '${key}': ${bool},`)
+      const val = JSON.stringify(this.advices.pragma[key as keyof PragmaAdvices])
+      lines.push(`    '${key}': ${val},`)
     })
     lines.push('  },')
 
