@@ -8,6 +8,11 @@ type NroongaTestEnv = {
 }
 
 function setupClient(config: SetupConfig): Promise<TestEnv> {
+  if (config.env) {
+    for (const key of Object.keys(config.env)) {
+      funcs.setEnv(key, config.env[key])
+    }
+  }
   return new Promise((resolve) => {
     const client = new Database(config.db_path)
     const env: NroongaTestEnv = {
@@ -22,6 +27,11 @@ function teardownClient(env: NroongaTestEnv): Promise<void> {
   return new Promise((resolve) => {
     try {
       env.client.close()
+      if (env.config.env) {
+        for (const key of Object.keys(env.config.env)) {
+          funcs.deleteEnv(key)
+        }
+      }
     } catch (err) {
       // empty
     }

@@ -1,4 +1,4 @@
-import { getGroongaPath } from './funcs'
+import { getGroongaPath, sleep } from './funcs'
 import { Advices, SetupConfig, TestEnv } from './types'
 import { createClient, GroongaHttpClient } from '@yagisumi/groonga-http-client'
 import axios from 'axios'
@@ -69,14 +69,26 @@ function teardownClient(env: HttpTestEnv): Promise<void> {
     } catch (err) {
       // empty
     }
-    setTimeout(() => {
-      try {
-        env.server.kill()
-      } catch (err) {
-        // empty
+    setTimeout(async () => {
+      if (env.server.killed) {
+        resolve()
+        return
+      }
+      for (let i = 0; i < 10; i++) {
+        try {
+          env.server.kill()
+          await sleep(300)
+          if (env.server.killed) {
+            break
+          }
+        } catch (err) {
+          if (env.server.killed) {
+            break
+          }
+        }
       }
       resolve()
-    }, 700)
+    }, 300)
   })
 }
 
@@ -99,6 +111,8 @@ declare const global: any
 for (const f in funcs) {
   global[f] = (funcs as any)[f]
 }
+
+global.setEnv = function (key: string, value: string) {}
 
 global.setupClient = setupClient
 global.teardownClient = teardownClient
