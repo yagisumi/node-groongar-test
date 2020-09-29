@@ -98,13 +98,26 @@ async function execTest(context: OutputsContext) {
     const db_directory = path.join(env.temp_dir, `${test_path}[${v}]`)
     const db_path = path.join(db_directory, 'db')
     mkdirp.sync(db_directory)
+
+    const env_keys: string[] = []
+    for (const elem of elems) {
+      if (elem.type === 'export') {
+        if (elem.string.match(/^#\$(\w+)=(.+)/)) {
+          const key = RegExp.$1
+          const val = RegExp.$2.replace(/#\{/g, '${')
+          process.env[key] = val
+          env_keys.push(key)
+        }
+      }
+    }
+
     let db = new Database(db_path)
     const rg = createGroongar(db)
     if (rg.error) {
       continue
     }
     const groongar = rg.value
-    const env_keys: string[] = []
+
     try {
       for (const elem of elems) {
         // console.log(elem)
@@ -126,17 +139,10 @@ async function execTest(context: OutputsContext) {
               merge(report, {
                 unexpected_errors: {
                   count: 1,
-                  elems: { test_id: true },
+                  elems: { [test_id]: e.toString() },
                 },
               })
             }
-          }
-        } else if (elem.type === 'export') {
-          if (elem.string.match(/^#\$(\w+)=(.+)/)) {
-            const key = RegExp.$1
-            const val = RegExp.$2.replace(/#\{/g, '${')
-            process.env[key] = val
-            env_keys.push(key)
           }
         } else if (elem.type === 'pragma') {
           if (elem.string.startsWith('#@omit')) {
