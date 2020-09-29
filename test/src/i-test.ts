@@ -90,7 +90,7 @@ class GrnTestRunner {
 
     return (test: string, status: Status, time_ms: number) => {
       index += 1
-      const path = test.replace(/^test\/groonga\/suite\//, '')
+      const path = test.replace(/^test\/grntest\//, '')
       const indexStr = (space + index.toString()).slice(-width)
       const status_str = Chalks[status](status.toUpperCase().slice(0, 4))
       const timeStr = (time_ms / 1000).toString() + 's'
@@ -150,6 +150,7 @@ class GrnTestRunner {
         let status: Status = 'passed'
         let time = 0
         if (error) {
+          status = 'failed'
           this.statusCount['failed'] += 1
           this.failedMessages.push(` ${chalk.red('FAIL')} ${test}\n${error}\n`)
         } else {
