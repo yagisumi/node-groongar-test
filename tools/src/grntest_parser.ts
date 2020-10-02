@@ -162,7 +162,7 @@ export class GrnTestScanner {
         // #TODO
         let string = line
         line = this.peek()
-        while (line?.startsWith('# ')) {
+        while (line?.startsWith('# ') || line?.startsWith('#\n')) {
           this.index += 1
           string += line
           line = this.peek()
@@ -199,7 +199,7 @@ export class GrnTestScanner {
           string,
         })
       } else {
-        throw new Error('unexpected')
+        throw new Error(`unexpected cc: ${JSON.stringify(cc)}`)
       }
 
       line = this.peek()
