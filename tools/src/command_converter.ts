@@ -231,8 +231,8 @@ export class CommandConverter {
         }
         lines.push('}')
       } else {
-        lines.push(`${skip}expect(r${this.countStr}.ok).toBe(true)`)
         lines.push(`${skip}expect(r${this.countStr}.error).toBeUndefined()`)
+        lines.push(`${skip}expect(r${this.countStr}.ok).toBe(true)`)
         const res = getResponse(this.cmd.response)
 
         lines.push(`if (r${this.countStr}.ok) {`)
