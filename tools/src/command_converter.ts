@@ -252,7 +252,7 @@ export class CommandConverter {
           if (this.cmd.command.command_name === 'object_inspect') {
             lines.push(`  ${skip}expect([fixObjectInspect(r${this.countStr}.value)]).toEqual(expected${this.countStr})`)
           } else if (['column_list', 'object_list', 'table_list'].includes(this.cmd.command.command_name)) {
-            let actual = `fixDBPath(r${this.countStr}.value, db_path)`
+            let actual = `r${this.countStr}.value`
             let expected = `expected${this.countStr}`
             if (this.cmd.command.command_name === 'object_list') {
               actual = `fixObjectList(${actual})`
