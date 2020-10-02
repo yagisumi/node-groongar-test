@@ -1,6 +1,6 @@
 import { getGroongaPath, sleep } from './funcs'
 import { Advices, SetupConfig, TestEnv } from './types'
-import { createClient, GroongaHttpClient } from '@yagisumi/groonga-http-client'
+import { createGroongaClient, GroongaHttpClient } from '@yagisumi/groonga-http-client'
 import axios from 'axios'
 import getPort from 'get-port'
 import child_process from 'child_process'
@@ -46,7 +46,7 @@ function setupClient(config: SetupConfig): Promise<TestEnv> {
           } else if (typeof (server as any).exitCode === 'number') {
             reject(new Error(`exit code: ${(server as any).exitCode}`))
           } else {
-            const client = createClient(axios, `http://localhost:${port}`)
+            const client = createGroongaClient(axios, `http://localhost:${port}`)
             const env: HttpTestEnv = {
               config,
               client,
@@ -78,11 +78,11 @@ function teardownClient(env: HttpTestEnv): Promise<void> {
         try {
           env.server.kill()
           await sleep(300)
-          if (env.server.killed) {
+          if (env.server.killed || env.server.exitCode != null) {
             break
           }
         } catch (err) {
-          if (env.server.killed) {
+          if (env.server.killed || env.server.exitCode != null) {
             break
           }
         }
