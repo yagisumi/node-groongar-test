@@ -64,6 +64,7 @@ export async function collectOutputs(env: Env) {
       count: 1,
     })
     saveOutputsLog(env, log)
+    rimraf.sync(env.temp_dir)
   }
 
   env.save_report('outputs', report)
@@ -95,7 +96,8 @@ async function execTest(context: OutputsContext) {
   const test_path = converter.testPath.replace(/\//g, '=')
 
   for (const v of ['1', '2', '3']) {
-    const db_directory = path.join(env.temp_dir, `${test_path}[${v}]`)
+    const temp_dir = path.join(env.temp_dir, `${test_path}[${v}]`)
+    const db_directory = path.join(temp_dir, 'db')
     const db_path = path.join(db_directory, 'db')
     mkdirp.sync(db_directory)
 
@@ -118,6 +120,8 @@ async function execTest(context: OutputsContext) {
     }
     const groongar = rg.value
 
+    const orig_cwd = process.cwd()
+    process.chdir(temp_dir)
     try {
       for (const elem of elems) {
         // console.log(elem)
@@ -207,11 +211,12 @@ async function execTest(context: OutputsContext) {
     } catch (e) {
       return false
     } finally {
+      process.chdir(orig_cwd)
       for (const key of env_keys) {
         delete process.env[key]
       }
       db.close()
-      rimraf.sync(db_directory)
+      rimraf.sync(temp_dir)
     }
   }
 

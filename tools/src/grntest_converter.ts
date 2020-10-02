@@ -521,15 +521,17 @@ export class GrnTestConverter {
       const TEST = (advices: Advices) => (shouldOmit(advices) ? it.skip : it)
 
       describe('grntest', () => {
-        const db_directory = path.join(__dirname, \`tmp.${basename}.\${clientInterface}.db\`)
-        const db_path = path.join(db_directory, 'db')
-        let env: TestEnv
+        const orig_cwd = process.cwd()
+        const temp_dir = path.join(__dirname, \`tmp.${basename}.\${clientInterface}\`)
+        const db_directory = 'db'
+        const db_path = 'db/db'
+              let env: TestEnv
         const advices: Advices = ${this.advicesLines().join('\n')}
 
         afterAll(() => {
           return new Promise((resolve) => {
             setTimeout(() => {
-              rimraf(db_directory)
+              rimraf(temp_dir)
               resolve()
             }, 500)
           })
@@ -537,11 +539,14 @@ export class GrnTestConverter {
 
         beforeEach(() => {
           env = undefined as any
-          rimraf(db_directory)
+          rimraf(temp_dir)
+          mkdir(temp_dir)
+          process.chdir(temp_dir)
           mkdir(db_directory)
         })
 
         afterEach(() => {
+          process.chdir(orig_cwd)
           if (env) {
             const tmp = env
             env = undefined as any
