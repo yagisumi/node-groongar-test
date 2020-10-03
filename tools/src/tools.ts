@@ -9,25 +9,23 @@ function printUsage() {
     USAGE: node tools/lib/tools.js [commands...]
       Commands
         init           create config.json
-        doc_test       create grntest of groonga/docs
         convert        convert tests of grntest to tests of groongar
         outputs        collect outputs of grntest
         typecheck      generate tests for types of return values
-        groongar       generate groongar.ts
-        clean          delete directories [report doc_test outputs]
-        clean_test     delete tests of groongar
+        clean          delete outputs directories [tools/outputs]
+        clean_test     delete tests of groongar [test/grntest, test/typecheck]
+        clean_report   delete report directory [tools/report]
   `)
 }
 
 const COMMANDS = {
   init: false,
-  doc_test: false,
   convert: false,
   outputs: false,
   typecheck: false,
-  groongar: false,
   clean: false,
   clean_test: false,
+  clean_report: false,
 }
 
 function isKeyofCommands(key: string): key is keyof typeof COMMANDS {
@@ -68,12 +66,14 @@ async function main() {
           env.clean()
         } else if (cmd === 'clean_test') {
           env.clean_grntest()
+        } else if (cmd === 'clean_report') {
+          env.clean_report()
         } else if (cmd === 'convert') {
           await convertGrnTest(env)
         } else if (cmd === 'outputs') {
           await collectOutputs(env)
         } else if (cmd === 'typecheck') {
-          await generateTypeCheck(env)
+          generateTypeCheck(env)
         }
       }
     }

@@ -47,8 +47,8 @@ export function init_config() {
   }
 
   const config: Config = {
-    groonga: '',
-    groonga_suggest_create_dataset: '',
+    groonga: 'groonga',
+    groonga_suggest_create_dataset: 'groonga-suggest-create-dataset',
     groonga_src: '',
   }
 
