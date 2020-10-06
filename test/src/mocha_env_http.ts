@@ -112,7 +112,7 @@ for (const f in funcs) {
   global[f] = (funcs as any)[f]
 }
 
-global.setEnv = function (key: string, value: string) {}
+global.setEnv = function (_key: string, _value: string) {}
 
 global.setupClient = setupClient
 global.teardownClient = teardownClient

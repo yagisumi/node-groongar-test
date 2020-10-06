@@ -50,6 +50,7 @@
     "cross-env": "^7.0.2",
     "deep-equal": "^2.0.3",
     "eslint": "^7.9.0",
+    "eslint-config-prettier": "^6.12.0",
     "expect": "^26.4.2",
     "get-port": "^5.1.1",
     "heredocument": "^2.0.2",

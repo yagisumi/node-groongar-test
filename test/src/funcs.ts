@@ -41,7 +41,7 @@ export function rimraf(dir: string) {
 }
 
 export function getGroongaPath() {
-  if (process.platform === 'win32' && process.env.GROONGA_PATH) {
+  if (process.platform === 'win32' && process.env.GROONGA_PATH != null) {
     return path.join(process.env.GROONGA_PATH, 'bin/groonga.exe')
   }
   return 'groonga'

@@ -51,6 +51,7 @@ export async function collectTestMap(suite_dir: string, test_base: string, repor
   for (const testPath of Object.keys(test_map)) {
     test_map[testPath].base = test_base
     const { test, expected } = test_map[testPath]
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!test || !expected) {
       console.error(`not enough files: ${testPath}`)
       merge(report, { 'not enough files': [testPath] })
@@ -146,7 +147,7 @@ export class GrnTestConverter {
       pragma: {},
     }
     const reason = OMIT_TEST_MAP[testPath]
-    if (reason) {
+    if (reason != null) {
       this.omit(reason)
     }
   }
@@ -236,7 +237,7 @@ export class GrnTestConverter {
       },
     })
 
-    if (GrnTestConverter.includeMap[grnFile]) {
+    if (GrnTestConverter.includeMap[grnFile] != null) {
       return GrnTestConverter.includeMap[grnFile]
     }
 
@@ -275,17 +276,17 @@ export class GrnTestConverter {
         const converter = new CommandConverter(elem, this.testPath)
         currentLines.push(...converter.main())
         merge(this.report, converter.report)
-        if (converter.skipReason) {
+        if (converter.skipReason != null) {
           merge(this.skipReasons, {
             [converter.skipReason]: 1,
           })
         }
-        if (converter.isolationReason) {
+        if (converter.isolationReason != null) {
           merge(this.isolatedReasons, {
             [converter.isolationReason]: 1,
           })
         }
-        if (converter.omitReason) {
+        if (converter.omitReason != null) {
           this.omit(converter.omitReason)
         }
       } else if (elem.type === 'export') {

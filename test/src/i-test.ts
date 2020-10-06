@@ -140,7 +140,7 @@ class GrnTestRunner {
   spawnJest(test: string) {
     this.runnerCount += 1
     child_process.exec(
-      `npx mocha --config mocharc.json --reporter json --parallel false -r test/lib/mocha_env_nroonga.js ${test}`,
+      `npx mocha --reporter json --no-parallel -r test/lib/mocha_env_nroonga.js ${test}`,
       {
         env: {
           TS_NODE_FILES: 'true',
@@ -159,8 +159,10 @@ class GrnTestRunner {
           if (result.stats.failures > 0) {
             this.statusCount['failed'] += result.stats.failures
             status = 'failed'
-            for (const stat of result.failures || []) {
-              this.failedMessages.push(` ${chalk.red('FAIL')} ${test}\n${stat.err.stack}\n`)
+            if (result.failures != null) {
+              for (const stat of result.failures) {
+                this.failedMessages.push(` ${chalk.red('FAIL')} ${test}\n${stat.err.stack}\n`)
+              }
             }
           } else if (result.stats.pending > 0) {
             this.statusCount['skipped'] += result.stats.pending

@@ -72,7 +72,7 @@ export class CommandConverter {
       },
     })
 
-    if (this.skipReason) {
+    if (this.skipReason != null) {
       merge(this.report, {
         skip_reasons: {
           [this.skipReason]: 1,
@@ -80,7 +80,7 @@ export class CommandConverter {
       })
     }
 
-    if (this.isolationReason) {
+    if (this.isolationReason != null) {
       merge(this.report, {
         isolation_reasons: {
           [this.isolationReason]: 1,
@@ -88,7 +88,7 @@ export class CommandConverter {
       })
     }
 
-    if (this.omitReason) {
+    if (this.omitReason != null) {
       merge(this.report, {
         omit_reasons: {
           [this.omitReason]: 1,
@@ -146,9 +146,9 @@ export class CommandConverter {
 
   private getSkipReason() {
     const output_type = this.cmd.command.arguments['output_type']
-    if (SKIP_TEST_MAP[this.testId]) {
+    if (SKIP_TEST_MAP[this.testId] != null) {
       return SKIP_TEST_MAP[this.testId]
-    } else if (output_type && output_type !== 'json') {
+    } else if (output_type != null && output_type !== 'json') {
       return 'output_type!=json'
     } else {
       return undefined
@@ -163,7 +163,7 @@ export class CommandConverter {
       return 'command_name=cache_limit'
     } else if (cmdName === 'tokenize' && args['normalizer'] === 'NormalizerAuto') {
       return 'command_name=tokenize&normalizer=NormalizerAuto'
-    } else if (args['output_type'] && args['output_type'] !== 'json') {
+    } else if (args['output_type'] != null && args['output_type'] !== 'json') {
       return 'output_type!=json'
     } else if (cmdName.match(/^query_log_flags_/)) {
       return 'command_name=query_log_flags_*'
@@ -210,12 +210,12 @@ export class CommandConverter {
     lines.push(...alines)
 
     if (this.cmd.count > 0) {
-      const skip = this.skipReason ? '// ' : ''
-      if (this.skipReason) {
+      const skip = this.skipReason != null ? '// ' : ''
+      if (this.skipReason != null) {
         lines.push(`// SKIP: ${this.skipReason}`)
       }
 
-      if (this.errorMassage) {
+      if (this.errorMassage != null) {
         lines.push(`${skip}expect(r${this.countStr}.ok).toBe(false)`)
         lines.push(`${skip}expect(r${this.countStr}.error).toBeInstanceOf(Error)`)
         lines.push(`if (r${this.countStr}.error) {`)
@@ -367,7 +367,7 @@ export class CommandConverter {
   private argsToLines(cmd: Command, args: GroongarArgs) {
     const lines: string[] = []
     if (Object.keys(args).length === 0) {
-      if (this.errorMassage) {
+      if (this.errorMassage != null) {
         lines.push('{} as any')
       } else {
         lines.push('')
@@ -380,7 +380,7 @@ export class CommandConverter {
         lines.push(...this.objLines(cmd, key, val))
       }
 
-      if (this.errorMassage || this.withAny) {
+      if (this.errorMassage != null || this.withAny) {
         lines.push('} as any')
       } else {
         lines.push('}')

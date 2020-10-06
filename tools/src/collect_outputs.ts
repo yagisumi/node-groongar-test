@@ -139,7 +139,7 @@ async function execTest(context: OutputsContext) {
             }
           } catch (e) {
             const errMsg = getErrorMessage(elem.response)
-            if (!errMsg) {
+            if (errMsg != null) {
               merge(report, {
                 unexpected_errors: {
                   count: 1,
@@ -196,7 +196,7 @@ async function execTest(context: OutputsContext) {
               await generateSeries(
                 from,
                 to,
-                (i) => {
+                (_i) => {
                   return eval(value)
                 },
                 load

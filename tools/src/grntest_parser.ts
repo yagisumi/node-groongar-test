@@ -102,7 +102,7 @@ export class GrnTestScanner {
     }
 
     let values = ''
-    while (line) {
+    while (line != null) {
       try {
         values += line
         JSON.parse(values)
@@ -162,7 +162,7 @@ export class GrnTestScanner {
         // #TODO
         let string = line
         line = this.peek()
-        while (line?.startsWith('# ') || line?.startsWith('#\n')) {
+        while (line != null && (line.startsWith('# ') || line.startsWith('#\n'))) {
           this.index += 1
           string += line
           line = this.peek()
@@ -212,7 +212,7 @@ export class GrnTestScanner {
     let response = ''
     let line: string | undefined
 
-    while ((line = this.peek())) {
+    while ((line = this.peek()) != null) {
       if (line.match(/^func\(.*?\)/)) {
         this.index += 1
         response = line
@@ -232,7 +232,7 @@ export class GrnTestScanner {
     const lines: string[] = []
     let line = this.peek()
 
-    while (line) {
+    while (line != null) {
       if (line.match(/^\[\[0,0\.0,0\.0\],/)) {
         this.index -= 1
         lines.pop()
@@ -241,7 +241,7 @@ export class GrnTestScanner {
         break
       } else if (line.startsWith('[')) {
         const last_line = lines[lines.length - 1]
-        if (last_line && last_line.startsWith('select ')) {
+        if (last_line != null && last_line.startsWith('select ')) {
           this.index -= 1
           lines.pop()
           break
@@ -274,7 +274,7 @@ export function parseGrnTest(grntest: string, hasResponse: boolean) {
   while (!scanner.isEnded()) {
     const start_index = scanner.index
     const cmd_str = scanner.scanCommand()
-    if (cmd_str) {
+    if (cmd_str != null) {
       const command = parseCommand(cmd_str)
       if (command === undefined) {
         throw new Error(`command parse error: ${cmd_str}`)
@@ -293,7 +293,7 @@ export function parseGrnTest(grntest: string, hasResponse: boolean) {
       } else {
         if (command.command_name === 'load' && command.arguments.values === undefined) {
           const values = scanner.scanValues()
-          if (values) {
+          if (values != null) {
             command.arguments['values'] = values
           } else if (!('values' in command.arguments) && values === undefined) {
             throw new Error('unexpected values')
@@ -308,7 +308,7 @@ export function parseGrnTest(grntest: string, hasResponse: boolean) {
             response = scanner.scanDumpResponse()
           } else {
             response = scanner.scanResponse()
-            if (response) {
+            if (response != null) {
               if (response.match(/^\s*(\{|\[)/)) {
                 response = JSON.parse(response)
               }

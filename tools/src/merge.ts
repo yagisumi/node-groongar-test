@@ -31,7 +31,7 @@ export function merge(a: any, b: any) {
   }
 
   if (type_a === 'boolean') {
-    return a && b
+    return (a as boolean) && b
   }
 
   if (type_a === 'number' || type_a === 'bigint') {

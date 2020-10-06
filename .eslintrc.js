@@ -1,45 +1,39 @@
 module.exports = {
-  extends: ['eslint:recommended'],
-  plugins: ['@typescript-eslint'],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 6,
-    sourceType: 'module',
-    ecmaFeatures: {
-      modules: true,
-    },
-  },
-  env: { browser: true, node: true, es6: true },
-  globals: {},
+  extends: [
+    'eslint:recommended', //
+    'prettier',
+  ],
+  env: { browser: true, node: true, es2017: true },
+  parserOptions: { sourceType: 'module' },
   rules: {
     'no-constant-condition': ['error', { checkLoops: false }],
+    'no-shadow': 'error',
   },
-
   overrides: [
     {
-      files: ['*.ts'],
-      extends: ['plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/eslint-recommended'],
+      files: ['*.ts', '*.tsx'],
+      extends: [
+        'plugin:@typescript-eslint/recommended', //
+        'prettier/@typescript-eslint',
+      ],
+      parserOptions: {
+        project: './tsconfig.json',
+      },
       rules: {
-        '@typescript-eslint/no-namespace': 'off',
-        '@typescript-eslint/camelcase': 'off',
+        '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
         '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
-        '@typescript-eslint/no-empty-function': 'off',
-        '@typescript-eslint/no-use-before-define': 'off',
-        '@typescript-eslint/ban-ts-ignore': 'off',
         '@typescript-eslint/ban-ts-comment': 'off',
-        '@typescript-eslint/member-delimiter-style': [
+        '@typescript-eslint/no-namespace': 'off',
+        '@typescript-eslint/no-empty-function': 'off',
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': ['error', { ignoreTypeValueShadow: true }],
+        '@typescript-eslint/strict-boolean-expressions': [
           'error',
           {
-            multiline: {
-              delimiter: 'none',
-              requireLast: false,
-            },
-            singleline: {
-              delimiter: 'semi',
-              requireLast: false,
-            },
+            allowString: false,
+            allowNumber: false,
+            allowNullableBoolean: true,
           },
         ],
       },

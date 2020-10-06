@@ -7,8 +7,8 @@ import sortObject from 'sortobject'
 import mkdirp from 'mkdirp'
 import prettier from 'prettier'
 
-export function path_normalize(path: string) {
-  return path.replace(/\\/g, '/')
+export function path_normalize(pathname: string) {
+  return pathname.replace(/\\/g, '/')
 }
 
 export type Config = {
@@ -34,7 +34,7 @@ const PATH_CONFIG = path.join(TOOLS_DIR, CONFIG_FILE)
 
 function defaultCommand(cmd: string) {
   if (process.platform === 'win32') {
-    if (process.env.GROONGA_PATH) {
+    if (process.env.GROONGA_PATH != null) {
       return path.join(process.env.GROONGA_PATH, cmd + '.exe')
     }
   }
