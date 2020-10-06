@@ -1,8 +1,6 @@
 import { Env } from './env'
 import path from 'path'
 import fs from 'fs'
-import rimraf from 'rimraf'
-import mkdirp from 'mkdirp'
 import { merge } from './merge'
 import equal from 'deep-equal'
 import hashcode from 'ts-hashcode'
@@ -104,9 +102,9 @@ function makeTest(cmd: string, r_set: ObjectSet, v: number) {
   tests.push(`
       test('${cmd}:v${v}', () => {
     `)
-  const ver = `v${v}` as keyof VerTestMap
+  // const ver = `v${v}` as keyof VerTestMap
   for (const r of r_set.values) {
-    tests.push(`expectType<Types.ret<'${cmd}', ${v}>>(`)
+    tests.push(`expectType<Types.Ret<'${cmd}', ${v}>>(`)
     tests.push(JSON.stringify(r))
     tests.push(')\n\n')
   }
