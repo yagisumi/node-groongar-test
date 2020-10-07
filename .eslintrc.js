@@ -1,4 +1,12 @@
 module.exports = {
+  ignorePatterns: [
+    '/tools/lib', //
+    '/tools/outputs',
+    '/tools/report',
+    '/test/lib',
+    '/test/grntest',
+    '/test/typecheck',
+  ],
   extends: [
     'eslint:recommended', //
     'prettier',

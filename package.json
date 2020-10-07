@@ -1,14 +1,14 @@
 {
   "name": "groongar-test",
   "version": "0.1.0",
-  "description": "The purpose of testing @yagisumi/groongar",
+  "description": "The purpose of testing for @yagisumi/groongar",
   "keywords": [],
   "engines": {
     "node": ">= 10.0.0"
   },
   "private": true,
   "scripts": {
-    "test": "run-s prettier:fix eslint jest build check-ts grntest:nroonga",
+    "test": "run-s prettier:check eslint jest build check-ts grntest:nroonga",
     "build": "tsc -p test/src",
     "clean": "rimraf lib test/lib tools/lib coverage umd *.tgz .rpt2_cache",
     "check-ts": "tsc --noEmit -p test",
@@ -16,8 +16,9 @@
     "grntest:nroonga-i": "node test/lib/i-test.js",
     "grntest:http": "cross-env TS_NODE_FILES=true mocha -r test/lib/mocha_env_http.js \"test/grntest/suite/**/*.{test,i-test}.ts\"",
     "typecheck": "mocha \"test/typecheck/**/*.test.ts\"",
+    "prettier:check": "prettier --check \"**/*.{ts,js,json}\"",
     "prettier:fix": "prettier --write \"**/*.{ts,js,json}\"",
-    "eslint": "eslint \"**/*.{js,ts}\"",
+    "eslint": "eslint \"{test,tools}/{src,test}/**/*.{js,ts}\"",
     "tools:test": "cross-env TS_NODE_FILES=true TS_NODE_PROJECT=tools/tsconfig.json mocha --config tools/test/.mocharc.json",
     "tools:usage": "ts-node tools/src/tools.ts",
     "tools:init": "ts-node tools/src/tools.ts init",
@@ -31,6 +32,7 @@
   "repository": "github:yagisumi/node-groongar-test",
   "homepage": "http://github.com/yagisumi/node-groongar-test#readme",
   "license": "MIT",
+  "prettier": "@yagisumi/my-config-prettier",
   "devDependencies": {
     "@types/chai": "^4.2.12",
     "@types/deep-equal": "^1.0.1",
@@ -44,6 +46,7 @@
     "@yagisumi/groonga-command": "^0.1.0",
     "@yagisumi/groonga-http-client": "file:../groonga-http-client/yagisumi-groonga-http-client-0.1.0.tgz",
     "@yagisumi/groongar": "file:../groongar/yagisumi-groongar-0.1.0.tgz",
+    "@yagisumi/my-config-prettier": "^1.0.0",
     "axios": "^0.20.0",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",

@@ -1,8 +1,0 @@
-/lib
-/umd
-/tools/lib
-/test/lib
-/test/grntest
-/test/typecheck
-node_modules/
-tsconfig.json
