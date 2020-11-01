@@ -172,9 +172,7 @@ export class Env {
 
   prettier_format(src: string) {
     if (this.prettierrc == null) {
-      this.prettierrc = JSON.parse(
-        fs.readFileSync(path.join(this.groongar_root_dir, '.prettierrc'), { encoding: 'utf8' })
-      )
+      this.prettierrc = require('@yagisumi/my-config-prettier')
       this.prettierrc.parser = 'typescript'
     }
     return prettier.format(src, this.prettierrc)
