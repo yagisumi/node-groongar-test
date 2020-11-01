@@ -62,7 +62,7 @@ export async function generateSeries(
   let i = from
   let values = []
 
-  while (i < to) {
+  while (i <= to) {
     values.push(value_f(i))
     i += 1
     if (values.length >= 1000) {
@@ -85,7 +85,10 @@ export function sleep(msec: number) {
 export function fixDBPath(actual: unknown, db_path: string | RegExp) {
   const reDBPath =
     typeof db_path === 'string'
-      ? new RegExp(db_path.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\$&').replace(/\\/g, '\\\\'), 'g')
+      ? new RegExp(
+          db_path.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\$&').replace(/\\/g, '\\\\'),
+          'g'
+        )
       : db_path
 
   if (typeof actual === 'string') {
