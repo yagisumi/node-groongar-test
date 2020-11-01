@@ -31,7 +31,11 @@ type Advices = {
   omit?: boolean
 }
 
-export async function collectTestMap(suite_dir: string, test_base: string, report: Record<string, any>) {
+export async function collectTestMap(
+  suite_dir: string,
+  test_base: string,
+  report: Record<string, any>
+) {
   const entries = await readdirp.promise(suite_dir)
   const test_map: Record<string, TestFileInfo> = {}
 
@@ -77,9 +81,10 @@ export async function convertGrnTest(env: Env) {
 
   const copypathMap: Record<string, boolean> = {}
   for (const testPath of Object.keys(test_map)) {
-    // if (testPath.indexOf('online/single') < 0) {
+    // if (testPath.indexOf('suite/select/drilldowns/keys/') < 0) {
     //   continue
     // }
+
     console.log(testPath)
 
     const converter = new GrnTestConverter(testPath, test_map[testPath])
@@ -170,16 +175,44 @@ export class GrnTestConverter {
         test_elems.push(elem)
       }
     }
-    const expected_elems = parseGrnTest(fs.readFileSync(expected.fullPath, { encoding: 'utf8' }), true)
+    const expected_elems = this.fixExpectedElems(
+      parseGrnTest(fs.readFileSync(expected.fullPath, { encoding: 'utf8' }), true)
+    )
 
     this.testElems = this.combineElems(test_elems, expected_elems)
     if (this.testElems === undefined) {
       merge(this.report['combine error'], [path])
+      console.log(this.testPath)
       console.log({ test_elems, expected_elems })
       throw new Error('combine error')
     }
 
     return this.testElems
+  }
+
+  private fixExpectedElems(expected_elems: GrnTestElem[]) {
+    // 10.0.8
+    const NeedRemoveLoad = [
+      'suite/select/drilldowns/keys/multiple_all_hash_value',
+      'suite/select/drilldowns/keys/multiple_large',
+    ]
+    if (NeedRemoveLoad.includes(this.testPath)) {
+      const fixed: GrnTestElem[] = []
+      let skip_count = 0
+      for (const elem of expected_elems) {
+        if (elem.type !== 'command' || elem.command.command_name !== 'load') {
+          if (elem.type === 'command') {
+            elem.count -= skip_count
+          }
+          fixed.push(elem)
+        } else {
+          skip_count += 1
+        }
+      }
+      return fixed
+    }
+
+    return expected_elems
   }
 
   private combineElems(test_elems: GrnTestElem[], expected_elems: GrnTestElem[]) {
@@ -241,7 +274,10 @@ export class GrnTestConverter {
       return GrnTestConverter.includeMap[grnFile]
     }
 
-    const elems = parseGrnTest(fs.readFileSync(path.join(this.testFileInfo.base, grnFile), { encoding: 'utf8' }), false)
+    const elems = parseGrnTest(
+      fs.readFileSync(path.join(this.testFileInfo.base, grnFile), { encoding: 'utf8' }),
+      false
+    )
     const r_elems: GrnTestElem[] = []
     for (const elem of elems) {
       if (elem.type === 'pragma' && elem.string.match(/^#@include\s+(\S+)/)) {
@@ -392,11 +428,16 @@ export class GrnTestConverter {
     } else if (elem.string.match(/#@sleep\s+(\d+)/)) {
       const time = Number(RegExp.$1) * 1000
       lines.push(`await sleep(${time})`)
-    } else if (elem.string.match(/^#@generate-series\s+(\d+)\s+(\d+)\s+(\w+)\s+'((?:\\'|[^'])+)'/)) {
+    } else if (
+      elem.string.match(/^#@generate-series\s+(\d+)\s+(\d+)\s+(\w+)\s+'((?:\\'|[^'])+)'/)
+    ) {
       const from = Number(RegExp.$1)
       const to = Number(RegExp.$2)
       const table = RegExp.$3
-      const value = RegExp.$4.trim().replace(/=>/g, ':')
+      const value = RegExp.$4
+        .trim()
+        .replace(/=>/g, ':')
+        .replace(/("[^"]+") \* (\d+)/g, '$1.repeat($2)')
       lines.push(
         `await generateSeries(${from}, ${to}, (i) => { return ${value}}, (values) => groongar.load({ table: '${table}', values}))`
       )

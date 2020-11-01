@@ -186,11 +186,17 @@ async function execTest(context: OutputsContext) {
           } else if (elem.string.match(/#@sleep\s+(\d+)/)) {
             const time = Number(RegExp.$1) * 1000
             await sleep(time)
-          } else if (elem.string.match(/^#@generate-series\s+(\d+)\s+(\d+)\s+(\w+)\s+'((?:\\'|[^'])+)'/)) {
+          } else if (
+            elem.string.match(/^#@generate-series\s+(\d+)\s+(\d+)\s+(\w+)\s+'((?:\\'|[^'])+)'/)
+          ) {
             const from = Number(RegExp.$1)
             const to = Number(RegExp.$2)
             const table = RegExp.$3
-            const value = RegExp.$4.trim().replace(/=>/g, ':')
+            const value = RegExp.$4
+              .trim()
+              .replace(/=>/g, ':')
+              .replace(/("[^"]+") \* (\d+)/g, '$1.repeat($2)')
+
             const load = (values: any[]) => groongar.load({ table, values })
             if (value.match(/:\s*i/)) {
               await generateSeries(
