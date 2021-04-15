@@ -143,6 +143,7 @@ class GrnTestRunner {
       `npx mocha --reporter json --no-parallel -r test/lib/mocha_env_nroonga.js ${test}`,
       {
         env: {
+          ...process.env,
           TS_NODE_FILES: 'true',
         },
       },
