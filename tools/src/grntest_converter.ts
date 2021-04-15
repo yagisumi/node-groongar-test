@@ -472,6 +472,8 @@ export class GrnTestConverter {
       // !!!
     } else if (elem.string.match(/^#@require-platform\s+(!?windows)/)) {
       this.advices.pragma.require_platform = RegExp.$1 as any
+    } else if (elem.string.match(/^#@sleep-after-command /)) {
+      // ignore
     } else {
       throw new Error(`unexpected pragma: ${elem.string}`)
     }
@@ -574,7 +576,7 @@ export class GrnTestConverter {
           return new Promise((resolve) => {
             setTimeout(() => {
               rimraf(temp_dir)
-              resolve()
+              resolve(null)
             }, 500)
           })
         })
